@@ -219,13 +219,16 @@ namespace SMBLibrary.Client
             }
         }
 
-        public NTStatus Login(string domainName, string userName, string password)
+        public NTStatus Login(string domainName, string userName, string password, out string ssTrace)
         {
-            return Login(domainName, userName, password, AuthenticationMethod.NTLMv2);
+            ssTrace = string.Empty;
+            return Login(domainName, userName, password, AuthenticationMethod.NTLMv2, out ssTrace);
         }
 
-        public NTStatus Login(string domainName, string userName, string password, AuthenticationMethod authenticationMethod)
+        public NTStatus Login(string domainName, string userName, string password, AuthenticationMethod authenticationMethod, out string ssTrace)
         {
+            ssTrace = string.Empty;
+
             if (!m_isConnected)
             {
                 throw new InvalidOperationException("A connection must be successfully established before attempting login");

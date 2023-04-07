@@ -213,29 +213,30 @@ namespace SMBLibrary.Client
 
         public NTStatus Login(string domainName, string userName, string password, AuthenticationMethod authenticationMethod, out string ssTrace)
         {
-            ssTrace = "Socket " + m_clientSocketGUID;
+            ssTrace = string.Empty;
+            //ssTrace = "Socket " + m_clientSocketGUID;
 
             if (!m_isConnected)
             {
-                ssTrace += ", not connected";
+                // ssTrace += ", not connected";
                 throw new InvalidOperationException("A connection must be successfully established before attempting login");
             }
 
             byte[] negotiateMessage = NTLMAuthenticationHelper.GetNegotiateMessage(m_securityBlob, domainName, authenticationMethod);
             if (negotiateMessage == null)
             {
-                ssTrace += ", invalid token";
+                // ssTrace += ", invalid token";
                 return NTStatus.SEC_E_INVALID_TOKEN;
             }
 
             SessionSetupRequest request = new SessionSetupRequest();
             request.SecurityMode = SecurityMode.SigningEnabled;
             request.SecurityBuffer = negotiateMessage;
-            ssTrace += ", Send negotiate";
+            // ssTrace += ", Send negotiate";
             TrySendCommand(request);
-            ssTrace += ", MsgId=" + request.MessageID;
+            // ssTrace += ", MsgId=" + request.MessageID;
             SMB2Command response = WaitForCommand(request.MessageID, out string xx1, true);
-            ssTrace += xx1;
+            // ssTrace += xx1;
             if (response != null)
             {
                 if (response.Header.Status == NTStatus.STATUS_MORE_PROCESSING_REQUIRED && response is SessionSetupResponse)
@@ -251,11 +252,11 @@ namespace SMBLibrary.Client
                     request = new SessionSetupRequest();
                     request.SecurityMode = SecurityMode.SigningEnabled;
                     request.SecurityBuffer = authenticateMessage;
-                    ssTrace += ", Send authenticate";
+                    // ssTrace += ", Send authenticate";
                     TrySendCommand(request);
-                    ssTrace += ", MsgId=" + request.MessageID;
+                    // ssTrace += ", MsgId=" + request.MessageID;
                     response = WaitForCommand(request.MessageID, out string xx2, true);
-                    ssTrace += xx2;
+                    // ssTrace += xx2;
                     if (response != null)
                     {
                         m_isLoggedIn = (response.Header.Status == NTStatus.STATUS_SUCCESS);
@@ -527,14 +528,14 @@ namespace SMBLibrary.Client
                                 index--;
                                 continue;
                             }
-                            ssTrace += ", msgid " + messageID + " found in queue";
+                            //ssTrace += ", msgid " + messageID + " found in queue";
                             return command;
                         }
                     }
                 }
                 m_incomingQueueEventHandle.WaitOne(100);
             }
-            ssTrace += ", msgid " + messageID + " not in queue of length " + m_incomingQueue.Count + " after " + stopwatch.ElapsedMilliseconds + "ms";
+            //ssTrace += ", msgid " + messageID + " not in queue of length " + m_incomingQueue.Count + " after " + stopwatch.ElapsedMilliseconds + "ms";
             return null;
         }
 
